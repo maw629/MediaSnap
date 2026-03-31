@@ -96,5 +96,6 @@ public partial class MainViewModel : ObservableObject, IDisposable
         }
 
         Sessions.Clear();
+        GC.SuppressFinalize(this);
     }
 }

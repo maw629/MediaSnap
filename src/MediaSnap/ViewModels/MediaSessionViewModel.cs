@@ -173,5 +173,6 @@ public partial class MediaSessionViewModel : ObservableObject, IDisposable
 
         _session.MediaPropertiesChanged -= OnMediaPropertiesChanged;
         _session.PlaybackInfoChanged -= OnPlaybackInfoChanged;
+        GC.SuppressFinalize(this);
     }
 }
