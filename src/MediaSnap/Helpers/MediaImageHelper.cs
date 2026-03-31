@@ -19,13 +19,7 @@ public static class MediaImageHelper
 
         try
         {
-            using var streamRef = await properties.Thumbnail.OpenReadAsync();
-            if (streamRef is null)
-            {
-                return null;
-            }
-
-            using var stream = streamRef.AsStream();
+            using var stream = (await properties.Thumbnail.OpenReadAsync()).AsStream();
             return CreateBitmapFromStream(stream);
         }
         catch (Exception ex) when (ex is FileNotFoundException or UnauthorizedAccessException)
@@ -40,7 +34,7 @@ public static class MediaImageHelper
     /// </summary>
     public static BitmapSource? CreateBitmapFromStream(Stream stream)
     {
-        if (stream is null || stream.Length == 0)
+        if (stream.Length == 0)
         {
             return null;
         }
