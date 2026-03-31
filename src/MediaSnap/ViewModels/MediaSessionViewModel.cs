@@ -1,4 +1,4 @@
-using System.IO;
+﻿using System.IO;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -101,7 +101,10 @@ public partial class MediaSessionViewModel : ObservableObject, IDisposable
     private void UpdatePlaybackInfo()
     {
         var info = _session.GetPlaybackInfo();
-        if (info is null) return;
+        if (info is null)
+        {
+            return;
+        }
 
         Status = info.PlaybackStatus switch
         {
@@ -128,7 +131,10 @@ public partial class MediaSessionViewModel : ObservableObject, IDisposable
         try
         {
             var properties = await _session.TryGetMediaPropertiesAsync();
-            if (properties is null) return;
+            if (properties is null)
+            {
+                return;
+            }
 
             Title = properties.Title ?? string.Empty;
             Artist = properties.Artist ?? string.Empty;
@@ -158,7 +164,11 @@ public partial class MediaSessionViewModel : ObservableObject, IDisposable
 
     public void Dispose()
     {
-        if (_disposed) return;
+        if (_disposed)
+        {
+            return;
+        }
+
         _disposed = true;
 
         _session.MediaPropertiesChanged -= OnMediaPropertiesChanged;
