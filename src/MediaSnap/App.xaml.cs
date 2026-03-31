@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Windows;
 using H.NotifyIcon;
+using MediaSnap.Helpers;
 using MediaSnap.Models;
 using MediaSnap.Services;
 using MediaSnap.ViewModels;
@@ -19,6 +20,12 @@ public partial class App
     private MainViewModel? _mainViewModel;
     private FlyoutWindow? _flyoutWindow;
     private TaskbarIcon? _trayIcon;
+
+    private static readonly System.Windows.Media.Typeface GlyphTypeface =
+        new("Segoe Fluent Icons");
+
+    private const string GlyphPause = "\uE769";
+    private const string GlyphPlay = "\uE768";
 
     private const string DarkThemeUri = "Styles/DarkTheme.xaml";
     private const string LightThemeUri = "Styles/LightTheme.xaml";
@@ -125,18 +132,19 @@ public partial class App
 
         // Update glyph: playing = pause icon, paused = play icon
         var glyph = _mainViewModel.AggregateStatus == PlaybackStatus.Playing
-            ? "\uE769"  // Pause
-            : "\uE768"; // Play
+            ? GlyphPause
+            : GlyphPlay;
 
-        var iconForeground = (System.Windows.Media.Brush)FindResource("TrayIconForeground")!;
+        var iconColor = _themeService is { IsDarkTheme: true }
+            ? System.Windows.Media.Colors.White
+            : System.Windows.Media.Colors.Black;
 
-        _trayIcon.IconSource = new GeneratedIconSource
-        {
-            Text = glyph,
-            FontFamily = new System.Windows.Media.FontFamily("Segoe Fluent Icons"),
-            Foreground = iconForeground,
-            FontSize = 28
-        };
+        var dpi = (uint)(System.Windows.Media.VisualTreeHelper.GetDpi(
+            _flyoutWindow ?? (System.Windows.Media.Visual)MainWindow!).PixelsPerInchX);
+
+        var oldIcon = _trayIcon.Icon;
+        _trayIcon.Icon = GlyphIconHelper.CreateIcon(glyph, GlyphTypeface, iconColor, dpi);
+        oldIcon?.Dispose();
     }
 
     protected override void OnExit(ExitEventArgs e)
