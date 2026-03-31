@@ -7,15 +7,6 @@
   <tb:TaskbarIcon
     x:Key="TrayIcon"
     ToolTipText="MediaSnap"
-    Visibility="Collapsed">
-    <tb:TaskbarIcon.IconSource>
-      <tb:GeneratedIconSource
-        x:Name="TrayIconSource"
-        Text="&#xE768;"
-        FontFamily="Segoe Fluent Icons"
-        Foreground="White"
-        FontSize="28" />
-    </tb:TaskbarIcon.IconSource>
-  </tb:TaskbarIcon>
+    Visibility="Collapsed" />
 
 </ResourceDictionary>
