@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Diagnostics;
+using System.IO;
 using System.Windows.Media.Imaging;
 using Windows.Media.Control;
 
@@ -22,9 +23,9 @@ public static class MediaImageHelper
             using var stream = (await properties.Thumbnail.OpenReadAsync()).AsStream();
             return CreateBitmapFromStream(stream);
         }
-        catch (Exception ex) when (ex is FileNotFoundException or UnauthorizedAccessException)
+        catch (Exception ex)
         {
-            // Some media sources provide invalid thumbnail references
+            Debug.WriteLine($"[MediaSnap] Failed to load thumbnail: {ex.Message}");
             return null;
         }
     }
@@ -46,8 +47,9 @@ public static class MediaImageHelper
             bitmap.Freeze();
             return bitmap;
         }
-        catch (Exception)
+        catch (Exception ex)
         {
+            Debug.WriteLine($"[MediaSnap] Failed to create bitmap from stream: {ex.Message}");
             return null;
         }
     }

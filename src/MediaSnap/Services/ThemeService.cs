@@ -1,4 +1,5 @@
-﻿using Microsoft.Win32;
+﻿using System.Diagnostics;
+using Microsoft.Win32;
 
 namespace MediaSnap.Services;
 
@@ -31,9 +32,10 @@ public sealed class ThemeService : IDisposable
             // 0 = dark, 1 = light; default to dark if missing
             return value is not int intVal || intVal == 0;
         }
-        catch
+        catch (Exception ex)
         {
-            return true; // Default to dark theme
+            Debug.WriteLine($"[MediaSnap] Failed to detect theme, defaulting to dark: {ex.Message}");
+            return true;
         }
     }
 

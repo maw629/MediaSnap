@@ -1,4 +1,4 @@
-﻿using System.IO;
+﻿using System.Diagnostics;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -69,13 +69,20 @@ public partial class MediaSessionViewModel : ObservableObject, IDisposable
     [RelayCommand(CanExecute = nameof(CanPlayPause))]
     private async Task PlayPauseAsync()
     {
-        if (Status == PlaybackStatus.Playing)
+        try
         {
-            await _session.TryPauseAsync();
+            if (Status == PlaybackStatus.Playing)
+            {
+                await _session.TryPauseAsync();
+            }
+            else
+            {
+                await _session.TryPlayAsync();
+            }
         }
-        else
+        catch (Exception ex)
         {
-            await _session.TryPlayAsync();
+            Debug.WriteLine($"[MediaSnap] PlayPause failed: {ex}");
         }
     }
 
@@ -85,7 +92,14 @@ public partial class MediaSessionViewModel : ObservableObject, IDisposable
     [RelayCommand(CanExecute = nameof(CanPrevious))]
     private async Task PreviousAsync()
     {
-        await _session.TrySkipPreviousAsync();
+        try
+        {
+            await _session.TrySkipPreviousAsync();
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"[MediaSnap] Previous failed: {ex}");
+        }
     }
 
     private bool CanPrevious() => Capabilities.CanPrevious;
@@ -93,37 +107,51 @@ public partial class MediaSessionViewModel : ObservableObject, IDisposable
     [RelayCommand(CanExecute = nameof(CanNext))]
     private async Task NextAsync()
     {
-        await _session.TrySkipNextAsync();
+        try
+        {
+            await _session.TrySkipNextAsync();
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"[MediaSnap] Next failed: {ex}");
+        }
     }
 
     private bool CanNext() => Capabilities.CanNext;
 
     private void UpdatePlaybackInfo()
     {
-        var info = _session.GetPlaybackInfo();
-        if (info is null)
+        try
         {
-            return;
+            var info = _session.GetPlaybackInfo();
+            if (info is null)
+            {
+                return;
+            }
+
+            Status = info.PlaybackStatus switch
+            {
+                GlobalSystemMediaTransportControlsSessionPlaybackStatus.Playing => PlaybackStatus.Playing,
+                GlobalSystemMediaTransportControlsSessionPlaybackStatus.Paused => PlaybackStatus.Paused,
+                GlobalSystemMediaTransportControlsSessionPlaybackStatus.Stopped => PlaybackStatus.Stopped,
+                _ => PlaybackStatus.Idle
+            };
+
+            var controls = info.Controls;
+            Capabilities = new MediaControlCapabilities
+            {
+                CanPlay = controls.IsPlayEnabled,
+                CanPause = controls.IsPauseEnabled,
+                CanNext = controls.IsNextEnabled,
+                CanPrevious = controls.IsPreviousEnabled
+            };
+
+            OnPropertyChanged(nameof(PlayPauseGlyph));
         }
-
-        Status = info.PlaybackStatus switch
+        catch (Exception ex)
         {
-            GlobalSystemMediaTransportControlsSessionPlaybackStatus.Playing => PlaybackStatus.Playing,
-            GlobalSystemMediaTransportControlsSessionPlaybackStatus.Paused => PlaybackStatus.Paused,
-            GlobalSystemMediaTransportControlsSessionPlaybackStatus.Stopped => PlaybackStatus.Stopped,
-            _ => PlaybackStatus.Idle
-        };
-
-        var controls = info.Controls;
-        Capabilities = new MediaControlCapabilities
-        {
-            CanPlay = controls.IsPlayEnabled,
-            CanPause = controls.IsPauseEnabled,
-            CanNext = controls.IsNextEnabled,
-            CanPrevious = controls.IsPreviousEnabled
-        };
-
-        OnPropertyChanged(nameof(PlayPauseGlyph));
+            Debug.WriteLine($"[MediaSnap] UpdatePlaybackInfo failed: {ex}");
+        }
     }
 
     private async Task UpdateMediaPropertiesAsync()
@@ -142,9 +170,9 @@ public partial class MediaSessionViewModel : ObservableObject, IDisposable
             var thumb = await MediaImageHelper.LoadThumbnailAsync(properties);
             Thumbnail = thumb;
         }
-        catch (Exception ex) when (ex is FileNotFoundException or UnauthorizedAccessException)
+        catch (Exception ex)
         {
-            // Some sessions have transient property access issues
+            Debug.WriteLine($"[MediaSnap] UpdateMediaProperties failed: {ex}");
         }
     }
 
