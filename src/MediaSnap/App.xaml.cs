@@ -43,6 +43,7 @@ public partial class App : Application
         // Set up tray icon
         _trayIcon = (TaskbarIcon)FindResource("TrayIcon");
         _trayIcon.TrayLeftMouseUp += OnTrayLeftClick;
+        _trayIcon.TrayMiddleMouseUp += OnTrayMiddleClick;
         _trayIcon.ForceCreate();
 
         // React to session changes for tray icon visibility and glyph
@@ -53,6 +54,14 @@ public partial class App : Application
     private void OnTrayLeftClick(object sender, RoutedEventArgs e)
     {
         _flyoutWindow?.ShowFlyout();
+    }
+
+    private async void OnTrayMiddleClick(object sender, RoutedEventArgs e)
+    {
+        if (_mediaService is not null)
+        {
+            await _mediaService.TogglePlaybackAsync();
+        }
     }
 
     private void OnMainViewModelPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)

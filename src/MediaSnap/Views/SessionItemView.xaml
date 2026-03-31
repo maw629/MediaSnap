@@ -14,13 +14,17 @@
             Background="#18FFFFFF">
 
         <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="48" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
 
             <!-- Thumbnail / fallback icon -->
-            <Border Grid.Column="0"
+            <Border Grid.Row="0" Grid.Column="0"
                     Width="48" Height="48"
                     CornerRadius="4"
                     Background="#30FFFFFF"
@@ -64,7 +68,7 @@
             </Border>
 
             <!-- Text info -->
-            <StackPanel Grid.Column="1"
+            <StackPanel Grid.Row="0" Grid.Column="1"
                         Margin="10,0,0,0"
                         VerticalAlignment="Center">
 
@@ -118,6 +122,71 @@
                         </Style>
                     </TextBlock.Style>
                 </TextBlock>
+            </StackPanel>
+
+            <!-- Playback controls -->
+            <StackPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
+                        Orientation="Horizontal"
+                        HorizontalAlignment="Center"
+                        Margin="0,8,0,0">
+
+                <StackPanel.Resources>
+                    <Style x:Key="ControlButton" TargetType="Button">
+                        <Setter Property="Width" Value="36" />
+                        <Setter Property="Height" Value="36" />
+                        <Setter Property="Margin" Value="4,0" />
+                        <Setter Property="Background" Value="Transparent" />
+                        <Setter Property="BorderBrush" Value="Transparent" />
+                        <Setter Property="Foreground" Value="White" />
+                        <Setter Property="FontFamily" Value="Segoe Fluent Icons" />
+                        <Setter Property="FontSize" Value="16" />
+                        <Setter Property="Cursor" Value="Hand" />
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="Button">
+                                    <Border x:Name="Bd"
+                                            Background="{TemplateBinding Background}"
+                                            CornerRadius="18"
+                                            Padding="4">
+                                        <ContentPresenter HorizontalAlignment="Center"
+                                                          VerticalAlignment="Center" />
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter TargetName="Bd" Property="Background" Value="#30FFFFFF" />
+                                        </Trigger>
+                                        <Trigger Property="IsPressed" Value="True">
+                                            <Setter TargetName="Bd" Property="Background" Value="#50FFFFFF" />
+                                        </Trigger>
+                                        <Trigger Property="IsEnabled" Value="False">
+                                            <Setter Property="Foreground" Value="#40FFFFFF" />
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </StackPanel.Resources>
+
+                <!-- Previous -->
+                <Button Style="{StaticResource ControlButton}"
+                        Content="&#xE892;"
+                        Command="{Binding PreviousCommand}"
+                        ToolTip="Previous" />
+
+                <!-- Play/Pause -->
+                <Button Style="{StaticResource ControlButton}"
+                        Width="40" Height="40"
+                        FontSize="20"
+                        Content="{Binding PlayPauseGlyph}"
+                        Command="{Binding PlayPauseCommand}"
+                        ToolTip="Play / Pause" />
+
+                <!-- Next -->
+                <Button Style="{StaticResource ControlButton}"
+                        Content="&#xE893;"
+                        Command="{Binding NextCommand}"
+                        ToolTip="Next" />
             </StackPanel>
         </Grid>
     </Border>
