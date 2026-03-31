@@ -3,7 +3,6 @@ using System.Windows.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using MediaSnap.Models;
 using MediaSnap.Services;
-using Windows.Media.Control;
 
 namespace MediaSnap.ViewModels;
 
