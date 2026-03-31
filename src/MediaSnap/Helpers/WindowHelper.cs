@@ -16,7 +16,7 @@ public static partial class WindowHelper
     public static void SetToolWindow(IntPtr handle)
     {
         var style = GetWindowLong(handle, GWL_EXSTYLE);
-        SetWindowLong(handle, GWL_EXSTYLE, style | WS_EX_TOOLWINDOW);
+        _ = SetWindowLong(handle, GWL_EXSTYLE, style | WS_EX_TOOLWINDOW);
     }
 
     [LibraryImport("user32.dll", EntryPoint = "GetWindowLongW")]
