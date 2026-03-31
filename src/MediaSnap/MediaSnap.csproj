@@ -12,6 +12,9 @@
     <AssemblyName>MediaSnap</AssemblyName>
     <RootNamespace>MediaSnap</RootNamespace>
     <Description>Windows 11 media control taskbar flyout</Description>
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <AnalysisLevel>latest-recommended</AnalysisLevel>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
   </PropertyGroup>
 
   <ItemGroup>
