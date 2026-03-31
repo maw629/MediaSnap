@@ -5,7 +5,7 @@ using MediaSnap.Helpers;
 
 namespace MediaSnap.Views;
 
-public partial class FlyoutWindow : Window
+public partial class FlyoutWindow
 {
     private bool _isClosingByDeactivate;
 

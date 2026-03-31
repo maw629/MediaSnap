@@ -41,7 +41,7 @@ public static class MediaImageHelper
 
         try
         {
-            stream.Seek(0, SeekOrigin.Begin);
+            _ = stream.Seek(0, SeekOrigin.Begin);
             var bitmap = BitmapFrame.Create(stream, BitmapCreateOptions.None, BitmapCacheOption.OnLoad);
             bitmap.Freeze();
             return bitmap;
