@@ -1,4 +1,5 @@
-﻿using MediaSnap.Models;
+﻿using System.Diagnostics;
+using MediaSnap.Models;
 using Windows.Media.Control;
 
 namespace MediaSnap.Services;
@@ -34,7 +35,15 @@ public sealed class MediaSessionService : IMediaSessionService
             return [];
         }
 
-        return _manager.GetSessions().ToList().AsReadOnly();
+        try
+        {
+            return _manager.GetSessions().ToList().AsReadOnly();
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"[MediaSnap] Failed to get sessions: {ex}");
+            return [];
+        }
     }
 
     public PlaybackStatus GetAggregateStatus()
@@ -51,15 +60,22 @@ public sealed class MediaSessionService : IMediaSessionService
 
         foreach (var session in sessions)
         {
-            var status = session.GetPlaybackInfo()?.PlaybackStatus;
-            switch (status)
+            try
             {
-                case GlobalSystemMediaTransportControlsSessionPlaybackStatus.Playing:
-                    hasPlaying = true;
-                    break;
-                case GlobalSystemMediaTransportControlsSessionPlaybackStatus.Paused:
-                    hasPaused = true;
-                    break;
+                var status = session.GetPlaybackInfo()?.PlaybackStatus;
+                switch (status)
+                {
+                    case GlobalSystemMediaTransportControlsSessionPlaybackStatus.Playing:
+                        hasPlaying = true;
+                        break;
+                    case GlobalSystemMediaTransportControlsSessionPlaybackStatus.Paused:
+                        hasPaused = true;
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[MediaSnap] Failed to get playback info: {ex}");
             }
         }
 
@@ -90,19 +106,35 @@ public sealed class MediaSessionService : IMediaSessionService
 
         if (hasPlaying)
         {
-            // Pause all playing sessions
+            // Pause all playing sessions, tolerating individual failures
             var tasks = sessions
                 .Where(s => s.GetPlaybackInfo()?.PlaybackStatus == GlobalSystemMediaTransportControlsSessionPlaybackStatus.Playing)
-                .Select(s => s.TryPauseAsync().AsTask());
+                .Select(async s =>
+                {
+                    try
+                    {
+                        await s.TryPauseAsync();
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine($"[MediaSnap] Failed to pause session: {ex}");
+                    }
+                });
             await Task.WhenAll(tasks);
         }
         else
         {
-            // Play the current/last session
             var current = _manager?.GetCurrentSession();
             if (current is not null)
             {
-                await current.TryPlayAsync();
+                try
+                {
+                    await current.TryPlayAsync();
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"[MediaSnap] Failed to play session: {ex}");
+                }
             }
         }
     }
@@ -114,9 +146,16 @@ public sealed class MediaSessionService : IMediaSessionService
             return;
         }
 
-        foreach (var session in _manager.GetSessions())
+        try
         {
-            session.PlaybackInfoChanged += OnPlaybackInfoChanged;
+            foreach (var session in _manager.GetSessions())
+            {
+                session.PlaybackInfoChanged += OnPlaybackInfoChanged;
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"[MediaSnap] Failed to subscribe to sessions: {ex}");
         }
     }
 
@@ -127,9 +166,16 @@ public sealed class MediaSessionService : IMediaSessionService
             return;
         }
 
-        foreach (var session in _manager.GetSessions())
+        try
         {
-            session.PlaybackInfoChanged -= OnPlaybackInfoChanged;
+            foreach (var session in _manager.GetSessions())
+            {
+                session.PlaybackInfoChanged -= OnPlaybackInfoChanged;
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"[MediaSnap] Failed to unsubscribe from sessions: {ex}");
         }
     }
 
@@ -137,7 +183,6 @@ public sealed class MediaSessionService : IMediaSessionService
         GlobalSystemMediaTransportControlsSessionManager sender,
         SessionsChangedEventArgs args)
     {
-        // Re-subscribe to the new set of sessions
         UnsubscribeFromAllSessions();
         SubscribeToCurrentSessions();
 

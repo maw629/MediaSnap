@@ -1,5 +1,7 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Windows;
+using System.Windows.Threading;
 using H.NotifyIcon;
 using MediaSnap.Helpers;
 using MediaSnap.Models;
@@ -32,6 +34,11 @@ public partial class App
 
     protected override async void OnStartup(StartupEventArgs e)
     {
+        // Wire up global exception handlers before anything else
+        DispatcherUnhandledException += OnDispatcherUnhandledException;
+        AppDomain.CurrentDomain.UnhandledException += OnAppDomainUnhandledException;
+        TaskScheduler.UnobservedTaskException += OnUnobservedTaskException;
+
         const string mutexName = "MediaSnap_SingleInstance_Mutex";
         _mutex = new Mutex(true, mutexName, out bool isNewInstance);
 
@@ -44,31 +51,44 @@ public partial class App
 
         base.OnStartup(e);
 
-        // Initialize theme service and apply system theme
-        _themeService = new ThemeService();
-        _themeService.ThemeChanged += OnThemeChanged;
-        ApplyTheme(_themeService.IsDarkTheme);
+        try
+        {
+            // Initialize theme service and apply system theme
+            _themeService = new ThemeService();
+            _themeService.ThemeChanged += OnThemeChanged;
+            ApplyTheme(_themeService.IsDarkTheme);
 
-        // Initialize media service
-        _mediaService = new MediaSessionService();
-        await _mediaService.InitializeAsync();
+            // Initialize media service
+            _mediaService = new MediaSessionService();
+            await _mediaService.InitializeAsync();
 
-        // Create ViewModel
-        _mainViewModel = new MainViewModel(_mediaService, Dispatcher);
-        _mainViewModel.RefreshSessions();
+            // Create ViewModel
+            _mainViewModel = new MainViewModel(_mediaService, Dispatcher);
+            _mainViewModel.RefreshSessions();
 
-        // Create flyout window
-        _flyoutWindow = new FlyoutWindow { DataContext = _mainViewModel };
+            // Create flyout window
+            _flyoutWindow = new FlyoutWindow { DataContext = _mainViewModel };
 
-        // Set up tray icon
-        _trayIcon = (TaskbarIcon)FindResource("TrayIcon")!;
-        _trayIcon.TrayLeftMouseUp += OnTrayLeftClick;
-        _trayIcon.TrayMiddleMouseUp += OnTrayMiddleClick;
-        _trayIcon.ForceCreate();
+            // Set up tray icon
+            _trayIcon = (TaskbarIcon)FindResource("TrayIcon")!;
+            _trayIcon.TrayLeftMouseUp += OnTrayLeftClick;
+            _trayIcon.TrayMiddleMouseUp += OnTrayMiddleClick;
+            _trayIcon.ForceCreate();
 
-        // React to session changes for tray icon visibility and glyph
-        _mainViewModel.PropertyChanged += OnMainViewModelPropertyChanged;
-        UpdateTrayIconState();
+            // React to session changes for tray icon visibility and glyph
+            _mainViewModel.PropertyChanged += OnMainViewModelPropertyChanged;
+            UpdateTrayIconState();
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"[MediaSnap] Startup failed: {ex}");
+            MessageBox.Show(
+                $"MediaSnap failed to start:\n{ex.Message}",
+                "MediaSnap",
+                MessageBoxButton.OK,
+                MessageBoxImage.Error);
+            Shutdown();
+        }
     }
 
     private void ApplyTheme(bool isDark)
@@ -92,8 +112,15 @@ public partial class App
     {
         Dispatcher.BeginInvoke(() =>
         {
-            ApplyTheme(_themeService!.IsDarkTheme);
-            UpdateTrayIconState();
+            try
+            {
+                ApplyTheme(_themeService!.IsDarkTheme);
+                UpdateTrayIconState();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[MediaSnap] Theme change failed: {ex}");
+            }
         });
     }
 
@@ -104,9 +131,16 @@ public partial class App
 
     private async void OnTrayMiddleClick(object sender, RoutedEventArgs e)
     {
-        if (_mediaService is not null)
+        try
         {
-            await _mediaService.TogglePlaybackAsync();
+            if (_mediaService is not null)
+            {
+                await _mediaService.TogglePlaybackAsync();
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"[MediaSnap] Toggle playback failed: {ex}");
         }
     }
 
@@ -130,22 +164,50 @@ public partial class App
             ? Visibility.Visible
             : Visibility.Collapsed;
 
-        // Update glyph: playing = pause icon, paused = play icon
-        var glyph = _mainViewModel.AggregateStatus == PlaybackStatus.Playing
-            ? GlyphPause
-            : GlyphPlay;
+        try
+        {
+            // Update glyph: playing = pause icon, paused = play icon
+            var glyph = _mainViewModel.AggregateStatus == PlaybackStatus.Playing
+                ? GlyphPause
+                : GlyphPlay;
 
-        var iconColor = _themeService is { IsDarkTheme: true }
-            ? System.Windows.Media.Colors.White
-            : System.Windows.Media.Colors.Black;
+            var iconColor = _themeService is { IsDarkTheme: true }
+                ? System.Windows.Media.Colors.White
+                : System.Windows.Media.Colors.Black;
 
-        var dpi = (uint)(System.Windows.Media.VisualTreeHelper.GetDpi(
-            _flyoutWindow ?? (System.Windows.Media.Visual)MainWindow!).PixelsPerInchX);
+            var dpi = (uint)(System.Windows.Media.VisualTreeHelper.GetDpi(
+                _flyoutWindow ?? (System.Windows.Media.Visual)MainWindow!).PixelsPerInchX);
 
-        var oldIcon = _trayIcon.Icon;
-        _trayIcon.Icon = GlyphIconHelper.CreateIcon(glyph, GlyphTypeface, iconColor, dpi);
-        oldIcon?.Dispose();
+            var oldIcon = _trayIcon.Icon;
+            _trayIcon.Icon = GlyphIconHelper.CreateIcon(glyph, GlyphTypeface, iconColor, dpi);
+            oldIcon?.Dispose();
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"[MediaSnap] Tray icon update failed: {ex}");
+        }
     }
+
+    #region Global Exception Handlers
+
+    private static void OnDispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
+    {
+        Debug.WriteLine($"[MediaSnap] Unhandled dispatcher exception: {e.Exception}");
+        e.Handled = true;
+    }
+
+    private static void OnAppDomainUnhandledException(object sender, UnhandledExceptionEventArgs e)
+    {
+        Debug.WriteLine($"[MediaSnap] Unhandled AppDomain exception: {e.ExceptionObject}");
+    }
+
+    private static void OnUnobservedTaskException(object? sender, UnobservedTaskExceptionEventArgs e)
+    {
+        Debug.WriteLine($"[MediaSnap] Unobserved task exception: {e.Exception}");
+        e.SetObserved();
+    }
+
+    #endregion
 
     protected override void OnExit(ExitEventArgs e)
     {
