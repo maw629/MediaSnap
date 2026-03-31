@@ -1,4 +1,4 @@
-using MediaSnap.Models;
+﻿using MediaSnap.Models;
 using Windows.Media.Control;
 
 namespace MediaSnap.Services;
