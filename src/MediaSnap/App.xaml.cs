@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Windows;
 using H.NotifyIcon;
 using MediaSnap.Models;
 using MediaSnap.Services;
@@ -7,6 +8,9 @@ using MediaSnap.Views;
 
 namespace MediaSnap;
 
+// App owns disposable fields but cannot implement IDisposable (WPF Application lifecycle).
+// Disposal is handled in OnExit.
+[SuppressMessage("Reliability", "CA1001:Types that own disposable fields should be disposable")]
 public partial class App : Application
 {
     private static Mutex? _mutex;
