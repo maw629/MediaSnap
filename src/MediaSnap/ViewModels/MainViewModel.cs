@@ -1,4 +1,4 @@
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.Windows.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using MediaSnap.Models;
@@ -80,7 +80,11 @@ public partial class MainViewModel : ObservableObject, IDisposable
 
     public void Dispose()
     {
-        if (_disposed) return;
+        if (_disposed)
+        {
+            return;
+        }
+
         _disposed = true;
 
         _mediaService.SessionsChanged -= OnSessionsChanged;
