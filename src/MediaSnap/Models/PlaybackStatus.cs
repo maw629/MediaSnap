@@ -1,4 +1,4 @@
-namespace MediaSnap.Models;
+﻿namespace MediaSnap.Models;
 
 public enum PlaybackStatus
 {

@@ -1,4 +1,4 @@
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Input;
 using System.Windows.Interop;
 using MediaSnap.Helpers;
@@ -55,7 +55,10 @@ public partial class FlyoutWindow : Window
 
     private void OnDeactivated(object? sender, EventArgs e)
     {
-        if (_isClosingByDeactivate) return;
+        if (_isClosingByDeactivate)
+        {
+            return;
+        }
 
         _isClosingByDeactivate = true;
         try

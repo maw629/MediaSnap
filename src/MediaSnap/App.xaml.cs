@@ -1,4 +1,4 @@
-using System.Windows;
+﻿using System.Windows;
 using H.NotifyIcon;
 using MediaSnap.Models;
 using MediaSnap.Services;
@@ -74,7 +74,10 @@ public partial class App : Application
 
     private void UpdateTrayIconState()
     {
-        if (_trayIcon is null || _mainViewModel is null) return;
+        if (_trayIcon is null || _mainViewModel is null)
+        {
+            return;
+        }
 
         // Show/hide tray icon based on sessions
         _trayIcon.Visibility = _mainViewModel.HasAnySessions

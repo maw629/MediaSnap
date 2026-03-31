@@ -1,4 +1,4 @@
-using MediaSnap.Models;
+﻿using MediaSnap.Models;
 using Windows.Media.Control;
 
 namespace MediaSnap.Services;
@@ -63,8 +63,16 @@ public sealed class MediaSessionService : IMediaSessionService
             }
         }
 
-        if (hasPlaying) return PlaybackStatus.Playing;
-        if (hasPaused) return PlaybackStatus.Paused;
+        if (hasPlaying)
+        {
+            return PlaybackStatus.Playing;
+        }
+
+        if (hasPaused)
+        {
+            return PlaybackStatus.Paused;
+        }
+
         return PlaybackStatus.Idle;
     }
 
@@ -101,7 +109,10 @@ public sealed class MediaSessionService : IMediaSessionService
 
     private void SubscribeToCurrentSessions()
     {
-        if (_manager is null) return;
+        if (_manager is null)
+        {
+            return;
+        }
 
         foreach (var session in _manager.GetSessions())
         {
@@ -111,7 +122,10 @@ public sealed class MediaSessionService : IMediaSessionService
 
     private void UnsubscribeFromAllSessions()
     {
-        if (_manager is null) return;
+        if (_manager is null)
+        {
+            return;
+        }
 
         foreach (var session in _manager.GetSessions())
         {
@@ -139,7 +153,11 @@ public sealed class MediaSessionService : IMediaSessionService
 
     public void Dispose()
     {
-        if (_disposed) return;
+        if (_disposed)
+        {
+            return;
+        }
+
         _disposed = true;
 
         if (_manager is not null)
