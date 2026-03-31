@@ -11,7 +11,7 @@ namespace MediaSnap;
 // App owns disposable fields but cannot implement IDisposable (WPF Application lifecycle).
 // Disposal is handled in OnExit.
 [SuppressMessage("Reliability", "CA1001:Types that own disposable fields should be disposable")]
-public partial class App : Application
+public partial class App
 {
     private static Mutex? _mutex;
     private MediaSessionService? _mediaService;
@@ -54,7 +54,7 @@ public partial class App : Application
         _flyoutWindow = new FlyoutWindow { DataContext = _mainViewModel };
 
         // Set up tray icon
-        _trayIcon = (TaskbarIcon)FindResource("TrayIcon");
+        _trayIcon = (TaskbarIcon)FindResource("TrayIcon")!;
         _trayIcon.TrayLeftMouseUp += OnTrayLeftClick;
         _trayIcon.TrayMiddleMouseUp += OnTrayMiddleClick;
         _trayIcon.ForceCreate();
@@ -128,7 +128,7 @@ public partial class App : Application
             ? "\uE769"  // Pause
             : "\uE768"; // Play
 
-        var iconForeground = (System.Windows.Media.Brush)FindResource("TrayIconForeground");
+        var iconForeground = (System.Windows.Media.Brush)FindResource("TrayIconForeground")!;
 
         _trayIcon.IconSource = new GeneratedIconSource
         {

@@ -1,8 +1,6 @@
-﻿using System.Windows.Controls;
+﻿namespace MediaSnap.Views;
 
-namespace MediaSnap.Views;
-
-public partial class SessionItemView : UserControl
+public partial class SessionItemView
 {
     public SessionItemView()
     {
