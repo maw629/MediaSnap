@@ -11,9 +11,13 @@ public partial class App : Application
 {
     private static Mutex? _mutex;
     private MediaSessionService? _mediaService;
+    private ThemeService? _themeService;
     private MainViewModel? _mainViewModel;
     private FlyoutWindow? _flyoutWindow;
     private TaskbarIcon? _trayIcon;
+
+    private const string DarkThemeUri = "Styles/DarkTheme.xaml";
+    private const string LightThemeUri = "Styles/LightTheme.xaml";
 
     protected override async void OnStartup(StartupEventArgs e)
     {
@@ -28,6 +32,11 @@ public partial class App : Application
         }
 
         base.OnStartup(e);
+
+        // Initialize theme service and apply system theme
+        _themeService = new ThemeService();
+        _themeService.ThemeChanged += OnThemeChanged;
+        ApplyTheme(_themeService.IsDarkTheme);
 
         // Initialize media service
         _mediaService = new MediaSessionService();
@@ -49,6 +58,32 @@ public partial class App : Application
         // React to session changes for tray icon visibility and glyph
         _mainViewModel.PropertyChanged += OnMainViewModelPropertyChanged;
         UpdateTrayIconState();
+    }
+
+    private void ApplyTheme(bool isDark)
+    {
+        var themeUri = isDark ? DarkThemeUri : LightThemeUri;
+        var newTheme = new ResourceDictionary { Source = new Uri(themeUri, UriKind.Relative) };
+
+        // Replace the theme dictionary (first in MergedDictionaries)
+        var mergedDicts = Resources.MergedDictionaries;
+        if (mergedDicts.Count > 0 && mergedDicts[0].Source?.OriginalString is DarkThemeUri or LightThemeUri)
+        {
+            mergedDicts[0] = newTheme;
+        }
+        else
+        {
+            mergedDicts.Insert(0, newTheme);
+        }
+    }
+
+    private void OnThemeChanged(object? sender, EventArgs e)
+    {
+        Dispatcher.BeginInvoke(() =>
+        {
+            ApplyTheme(_themeService!.IsDarkTheme);
+            UpdateTrayIconState();
+        });
     }
 
     private void OnTrayLeftClick(object sender, RoutedEventArgs e)
@@ -89,17 +124,20 @@ public partial class App : Application
             ? "\uE769"  // Pause
             : "\uE768"; // Play
 
+        var iconForeground = (System.Windows.Media.Brush)FindResource("TrayIconForeground");
+
         _trayIcon.IconSource = new GeneratedIconSource
         {
             Text = glyph,
             FontFamily = new System.Windows.Media.FontFamily("Segoe Fluent Icons"),
-            Foreground = System.Windows.Media.Brushes.White,
+            Foreground = iconForeground,
             FontSize = 28
         };
     }
 
     protected override void OnExit(ExitEventArgs e)
     {
+        _themeService?.Dispose();
         _mainViewModel?.Dispose();
         _mediaService?.Dispose();
         _trayIcon?.Dispose();
