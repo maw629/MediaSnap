@@ -1,0 +1,25 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+  <!-- Flyout background -->
+  <SolidColorBrush x:Key="FlyoutBackground" Color="#202020" Opacity="0.9" />
+  <SolidColorBrush x:Key="FlyoutShadowColor" Color="Black" />
+
+  <!-- Session item -->
+  <SolidColorBrush x:Key="SessionItemBackground" Color="White" Opacity="0.09" />
+  <SolidColorBrush x:Key="ThumbnailPlaceholderBackground" Color="White" Opacity="0.19" />
+
+  <!-- Text -->
+  <SolidColorBrush x:Key="PrimaryText" Color="White" />
+  <SolidColorBrush x:Key="SecondaryText" Color="White" Opacity="0.8" />
+  <SolidColorBrush x:Key="TertiaryText" Color="White" Opacity="0.6" />
+  <SolidColorBrush x:Key="DisabledText" Color="White" Opacity="0.25" />
+
+  <!-- Controls -->
+  <SolidColorBrush x:Key="ControlHoverBackground" Color="White" Opacity="0.19" />
+  <SolidColorBrush x:Key="ControlPressedBackground" Color="White" Opacity="0.31" />
+
+  <!-- Tray icon -->
+  <SolidColorBrush x:Key="TrayIconForeground" Color="White" />
+
+</ResourceDictionary>

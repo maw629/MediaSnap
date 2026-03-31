@@ -19,12 +19,13 @@
         ResizeMode="NoResize"
         Focusable="True">
 
-    <Border Background="#E6202020"
+    <Border Background="{DynamicResource FlyoutBackground}"
             CornerRadius="8"
             Margin="8"
             Padding="12">
         <Border.Effect>
-            <DropShadowEffect BlurRadius="8" ShadowDepth="2" Opacity="0.4" />
+            <DropShadowEffect BlurRadius="8" ShadowDepth="2" Opacity="0.4"
+                              Color="{Binding Color, Source={StaticResource FlyoutShadowColor}}" />
         </Border.Effect>
 
         <Grid>
@@ -39,7 +40,7 @@
 
             <!-- Empty state -->
             <TextBlock Text="No media playing"
-                       Foreground="#99FFFFFF"
+                       Foreground="{DynamicResource TertiaryText}"
                        FontSize="13"
                        HorizontalAlignment="Center"
                        VerticalAlignment="Center"
