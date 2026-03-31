@@ -16,6 +16,12 @@ public partial class FlyoutWindow
         Deactivated += OnDeactivated;
         PreviewKeyDown += OnPreviewKeyDown;
         Loaded += OnLoaded;
+
+        // Show off-screen then hide to force WPF layout pass.
+        // This ensures ActualWidth/ActualHeight are computed for positioning on first real show.
+        Left = -10000;
+        Show();
+        Hide();
     }
 
     private void OnLoaded(object sender, RoutedEventArgs e)
