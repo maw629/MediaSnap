@@ -48,7 +48,7 @@ public partial class MediaSessionViewModel : ObservableObject, IDisposable
     /// Returns the appropriate glyph for the play/pause button based on current status.
     /// </summary>
     public string PlayPauseGlyph => Status == PlaybackStatus.Playing
-        ? "\uE769"  // Pause
+        ? "\uE769" // Pause
         : "\uE768"; // Play
 
     public MediaSessionViewModel(
@@ -179,16 +179,12 @@ public partial class MediaSessionViewModel : ObservableObject, IDisposable
     private void OnMediaPropertiesChanged(
         GlobalSystemMediaTransportControlsSession sender,
         MediaPropertiesChangedEventArgs args)
-    {
-        _dispatcher.BeginInvoke(async () => await UpdateMediaPropertiesAsync());
-    }
+        => _dispatcher.BeginInvoke(async () => await UpdateMediaPropertiesAsync());
 
     private void OnPlaybackInfoChanged(
         GlobalSystemMediaTransportControlsSession sender,
         PlaybackInfoChangedEventArgs args)
-    {
-        _dispatcher.BeginInvoke(UpdatePlaybackInfo);
-    }
+        => _dispatcher.BeginInvoke(UpdatePlaybackInfo);
 
     public void Dispose()
     {
