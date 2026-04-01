@@ -44,10 +44,10 @@ public partial class FlyoutWindow
 
         PositionNearTray();
         Show();
-        Activate();
+        _ = Activate();
     }
 
-    public void HideFlyout()
+    private void HideFlyout()
     {
         Hide();
     }

@@ -47,6 +47,7 @@
                     </Image>
 
                     <!-- Fallback: music note glyph -->
+                    <!-- ReSharper disable once Xaml.DynamicResourceError -->
                     <TextBlock Text="&#xE8D6;"
                                FontFamily="Segoe Fluent Icons"
                                FontSize="20"
@@ -90,12 +91,14 @@
                             </Style>
                         </Image.Style>
                     </Image>
+                    <!-- ReSharper disable once Xaml.DynamicResourceError -->
                     <TextBlock Text="{Binding AppName, FallbackValue='Unknown App'}"
                                Foreground="{DynamicResource TertiaryText}"
                                FontSize="11" />
                 </StackPanel>
 
                 <!-- Title -->
+                <!-- ReSharper disable once Xaml.DynamicResourceError -->
                 <TextBlock Text="{Binding Title, FallbackValue='No title'}"
                            Foreground="{DynamicResource PrimaryText}"
                            FontSize="14"
@@ -105,6 +108,7 @@
                            HorizontalAlignment="Left" />
 
                 <!-- Artist -->
+                <!-- ReSharper disable once Xaml.DynamicResourceError -->
                 <TextBlock Text="{Binding Artist, FallbackValue=''}"
                            Foreground="{DynamicResource SecondaryText}"
                            FontSize="12"
