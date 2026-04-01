@@ -168,10 +168,10 @@ public partial class App
 
         try
         {
-            // Update glyph: playing = pause icon, paused = play icon
+            // Show current state: play icon when playing, pause icon when paused
             var glyph = _mainViewModel.AggregateStatus == PlaybackStatus.Playing
-                ? GlyphPause
-                : GlyphPlay;
+                ? GlyphPlay
+                : GlyphPause;
 
             var iconColor = _themeService is { IsDarkTheme: true }
                 ? System.Windows.Media.Colors.White
