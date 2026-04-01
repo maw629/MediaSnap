@@ -41,21 +41,25 @@ public partial class MainViewModel : ObservableObject, IDisposable
         for (var i = Sessions.Count - 1; i >= 0; i--)
         {
             var existing = Sessions[i];
-            if (!currentSessions.Any(s => s.SourceAppUserModelId == existing.SessionId))
+            if (currentSessions.Any(s => s.SourceAppUserModelId == existing.SessionId))
             {
-                Sessions[i].Dispose();
-                Sessions.RemoveAt(i);
+                continue;
             }
+
+            Sessions[i].Dispose();
+            Sessions.RemoveAt(i);
         }
 
         // Add new sessions
         foreach (var session in currentSessions)
         {
-            if (!Sessions.Any(vm => vm.SessionId == session.SourceAppUserModelId))
+            if (Sessions.Any(vm => vm.SessionId == session.SourceAppUserModelId))
             {
-                var vm = new MediaSessionViewModel(session, _dispatcher);
-                Sessions.Add(vm);
+                continue;
             }
+
+            var vm = new MediaSessionViewModel(session, _dispatcher);
+            Sessions.Add(vm);
         }
 
         UpdateAggregateStatus();
@@ -67,15 +71,9 @@ public partial class MainViewModel : ObservableObject, IDisposable
         HasAnySessions = Sessions.Count > 0;
     }
 
-    private void OnSessionsChanged(object? sender, EventArgs e)
-    {
-        _dispatcher.BeginInvoke(RefreshSessions);
-    }
+    private void OnSessionsChanged(object? sender, EventArgs e) => _dispatcher.BeginInvoke(RefreshSessions);
 
-    private void OnPlaybackStatusChanged(object? sender, EventArgs e)
-    {
-        _dispatcher.BeginInvoke(UpdateAggregateStatus);
-    }
+    private void OnPlaybackStatusChanged(object? sender, EventArgs e) => _dispatcher.BeginInvoke(UpdateAggregateStatus);
 
     public void Dispose()
     {

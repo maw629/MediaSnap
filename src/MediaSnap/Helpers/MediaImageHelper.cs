@@ -20,7 +20,7 @@ public static class MediaImageHelper
 
         try
         {
-            using var stream = (await properties.Thumbnail.OpenReadAsync()).AsStream();
+            await using var stream = (await properties.Thumbnail.OpenReadAsync()).AsStream();
             return CreateBitmapFromStream(stream);
         }
         catch (Exception ex)
@@ -33,7 +33,7 @@ public static class MediaImageHelper
     /// <summary>
     /// Creates a frozen BitmapImage from a stream. Returns null on failure.
     /// </summary>
-    public static BitmapSource? CreateBitmapFromStream(Stream stream)
+    private static BitmapFrame? CreateBitmapFromStream(Stream stream)
     {
         if (stream.Length == 0)
         {

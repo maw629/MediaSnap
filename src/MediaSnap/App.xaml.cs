@@ -44,7 +44,12 @@ public partial class App
 
         if (!isNewInstance)
         {
-            MessageBox.Show("MediaSnap is already running.", "MediaSnap", MessageBoxButton.OK, MessageBoxImage.Information);
+            _ = MessageBox.Show(
+                "MediaSnap is already running.",
+                "MediaSnap",
+                MessageBoxButton.OK,
+                MessageBoxImage.Information
+            );
             Shutdown();
             return;
         }
@@ -82,7 +87,7 @@ public partial class App
         catch (Exception ex)
         {
             Debug.WriteLine($"[MediaSnap] Startup failed: {ex}");
-            MessageBox.Show(
+            _ = MessageBox.Show(
                 $"MediaSnap failed to start:\n{ex.Message}",
                 "MediaSnap",
                 MessageBoxButton.OK,
@@ -124,10 +129,7 @@ public partial class App
         });
     }
 
-    private void OnTrayLeftClick(object sender, RoutedEventArgs e)
-    {
-        _flyoutWindow?.ShowFlyout();
-    }
+    private void OnTrayLeftClick(object sender, RoutedEventArgs e) => _flyoutWindow?.ShowFlyout();
 
     private async void OnTrayMiddleClick(object sender, RoutedEventArgs e)
     {
