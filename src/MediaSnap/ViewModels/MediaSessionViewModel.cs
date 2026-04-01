@@ -9,13 +9,14 @@ using Windows.Media.Control;
 
 namespace MediaSnap.ViewModels;
 
-public partial class MediaSessionViewModel : ObservableObject, IDisposable
+public partial class MediaSessionViewModel : ObservableObject, ISessionViewModel
 {
     private readonly GlobalSystemMediaTransportControlsSession _session;
     private readonly Dispatcher _dispatcher;
     private bool _disposed;
 
     public string SessionId => _session.SourceAppUserModelId;
+    public bool HasMediaControls => true;
 
     [ObservableProperty]
     private string _title = string.Empty;

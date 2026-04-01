@@ -18,6 +18,7 @@ public partial class App
 {
     private static Mutex? _mutex;
     private MediaSessionService? _mediaService;
+    private AudioSessionService? _audioSessionService;
     private ThemeService? _themeService;
     private MainViewModel? _mainViewModel;
     private FlyoutWindow? _flyoutWindow;
@@ -67,8 +68,12 @@ public partial class App
             _mediaService = new MediaSessionService();
             await _mediaService.InitializeAsync();
 
+            // Initialize WASAPI audio session detection
+            _audioSessionService = new AudioSessionService();
+            _audioSessionService.Initialize();
+
             // Create ViewModel
-            _mainViewModel = new MainViewModel(_mediaService, Dispatcher);
+            _mainViewModel = new MainViewModel(_mediaService, Dispatcher, _audioSessionService);
             _mainViewModel.RefreshSessions();
 
             // Create flyout window
@@ -215,6 +220,7 @@ public partial class App
     {
         _themeService?.Dispose();
         _mainViewModel?.Dispose();
+        _audioSessionService?.Dispose();
         _mediaService?.Dispose();
         _trayIcon?.Dispose();
 

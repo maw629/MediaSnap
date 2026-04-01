@@ -31,11 +31,14 @@
         <Grid>
             <!-- Sessions list -->
             <ItemsControl ItemsSource="{Binding Sessions}">
-                <ItemsControl.ItemTemplate>
+                <ItemsControl.Resources>
                     <DataTemplate DataType="{x:Type vm:MediaSessionViewModel}">
                         <views:SessionItemView />
                     </DataTemplate>
-                </ItemsControl.ItemTemplate>
+                    <DataTemplate DataType="{x:Type vm:AudioSessionViewModel}">
+                        <views:AudioSessionItemView />
+                    </DataTemplate>
+                </ItemsControl.Resources>
             </ItemsControl>
 
             <!-- Empty state -->
